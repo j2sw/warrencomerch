@@ -1,34 +1,40 @@
 import './style.css';
-import { products, money, total, validCart } from './catalog.js';
-let cart = [];
-try { cart = validCart(JSON.parse(localStorage.getItem('warren-cart') || '[]')); } catch {}
-let filter = 'All';
-const art = p => `<svg viewBox="0 0 320 280" role="img" aria-label="Illustration of ${p.color} ${p.category.toLowerCase()}"><ellipse cx="160" cy="250" rx="85" ry="10" fill="#000" opacity=".07"/>${p.type === 'hat' ? '<path d="M87 175 Q86 82 167 88 Q231 89 235 172 Z" fill="#a86648"/><path d="M84 174 Q166 152 252 186 Q268 203 231 208 L107 204 Q62 200 84 174" fill="#875036"/><path d="M162 91 L162 166" stroke="#c68c6e" fill="none"/>' : `<path d="M112 65 L140 54 Q160 73 180 54 L208 65 L263 111 L231 152 L210 137 L210 235 L110 235 L110 137 L89 152 L57 111 Z" fill="${p.type === 'hoodie' ? '#365640' : '#faf5e8'}" stroke="${p.type === 'hoodie' ? '#294631' : '#d2c9b7'}" stroke-width="2"/>${p.type === 'hoodie' ? '<path d="M134 65 Q114 18 160 21 Q206 18 186 65 L161 91 Z" fill="#294631"/><path d="M135 183 L185 183 L193 211 L127 211 Z" fill="#294631"/><path d="M150 86 L147 128 M172 86 L176 128" stroke="#b9c4b4" stroke-width="3"/>' : '<path d="M140 55 Q160 88 180 55" stroke="#d2c9b7" stroke-width="5" fill="none"/>'}` }<text x="160" y="${p.type === 'hat' ? '145' : '145'}" text-anchor="middle" fill="${p.type === 'tee' ? '#365640' : '#f5efdf'}" font-size="17" font-family="Georgia" font-weight="bold">WARREN</text><text x="160" y="162" text-anchor="middle" fill="${p.type === 'tee' ? '#365640' : '#f5efdf'}" font-size="8" letter-spacing="3">CO.</text></svg>`;
+import { createIcons, ArrowRight, ArrowUp, MapPin, Mountain, TreePine, Palette, Menu, X } from 'lucide';
+
+// Commerce remains in a separate WordPress installation; add its URL when ready.
+const storeUrl = '';
+const image = name => `${import.meta.env.BASE_URL}images/${name}`;
+const arrow = '<i data-lucide="arrow-right" aria-hidden="true"></i>';
+const collections = [
+  { id: 'falls', title: 'Williamsport Falls', description: 'The natural beauty that makes Williamsport special.', className: 'falls-art', caption: 'Williamsport Falls T-shirt artwork from the approved mockup' },
+  { id: 'wabash', title: 'Banks of the Wabash', description: 'Historic river town with a story to tell.', className: 'wabash-art', caption: 'Banks of the Wabash bridge T-shirt artwork from the approved mockup' },
+  { id: 'courthouse', title: 'Warren County Courthouse', description: 'Our history. Our community. Our home.', className: 'courthouse-art', caption: 'Warren County Courthouse T-shirt with the corrected red-domed courthouse artwork' }
+];
+const logo = `<span class="logo-place">WILLIAMSPORT</span><span class="logo-subtitle">ORIGINALS</span>`;
 document.querySelector('#app').innerHTML = `
-<div class="announcement">GOOD GEAR. EVERY DAY.</div>
-<header><a class="brand" href="#">WARREN <span>CO. MERCH</span></a><nav aria-label="Main navigation"><a href="#shop">Shop the collection</a><button id="cart-open" class="cart-button">Bag <span id="count">0</span></button></nav></header>
-<main><section class="hero"><div><p class="eyebrow">THE EVERYDAY COLLECTION / 01</p><h1>Wear your<br>kind of <em>everyday.</em></h1><p class="intro">Easy staples. A little hometown spirit.<br>T-shirts, hoodies, and hats from Warren Co.</p><a class="primary" href="#shop">Find your everyday ↗</a><p class="hero-note">KEEP IT SIMPLE. MAKE IT YOURS.</p></div><div class="hero-art">${art(products[1])}<span class="stamp">WARREN CO.<br>THE EVERYDAY GOODS</span><span class="edition">01 / FOREST</span></div></section>
-<section id="shop" class="shop"><div class="section-title"><div><p class="eyebrow">THE GOOD STUFF</p><h2>Your next go-to.</h2></div><p>Three staples. Endless everyday.</p></div><div id="filters" role="group" aria-label="Filter products">${['All','T-shirts','Hoodies','Hats'].map(f=>`<button data-filter="${f}" aria-pressed="${f==='All'}">${f}</button>`).join('')}</div><div class="products" id="products"></div></section>
-<section class="story"><p class="eyebrow">A LITTLE WARREN. A LOT OF YOU.</p><h2>For wherever the day takes you.</h2><p>From the first coffee to the long way home. Pick your favorite, throw it on, and make it your own.</p></section></main>
-<footer><a class="brand" href="#">WARREN <span>CO. MERCH</span></a><p>Everyday goods. Warren Co. spirit.</p><small>Sample storefront · Orders are not yet available.</small></footer>
-<dialog id="bag"><div class="bag-head"><h2>Your bag</h2><button id="cart-close" aria-label="Close shopping bag">✕</button></div><div id="cart-items"></div><div class="bag-bottom"><p>Subtotal <strong id="subtotal"></strong></p><small>Sample products and prices. Shipping and taxes are not calculated.</small><button id="checkout" class="primary">Checkout information</button><p id="checkout-note" hidden role="status">This store is a preview. Checkout is not connected and no orders or payments can be accepted yet.</p></div></dialog><div id="toast" role="status"></div>`;
-function renderProducts() {
- document.querySelector('#products').innerHTML = products.filter(p => filter === 'All' || p.category === filter).map(p=>`<article class="product"><div class="product-art" style="background:${p.background}"><span>${p.tag}</span>${art(p)}</div><div class="product-heading"><h3>${p.name}</h3><strong>${money(p.price)}</strong></div><p class="color">${p.color} / ${p.category}</p><div class="buy-row"><label class="sr-only" for="size-${p.id}">Size for ${p.name}</label><select id="size-${p.id}">${p.sizes.map(s=>`<option>${s}</option>`).join('')}</select><button data-add="${p.id}">Add to bag +</button></div></article>`).join('');
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header wrap"><a class="header-brand" href="#home" aria-label="Williamsport Originals home">Williamsport Originals</a><button class="menu-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="navigation" title="Open navigation"><i data-lucide="menu" aria-hidden="true"></i></button><nav id="navigation" aria-label="Main navigation"><a href="#home">Home</a><a href="#collections">Collections</a><a href="#about">About</a><a href="#warren-county">Warren County</a>${storeUrl ? `<a href="${storeUrl}">Shop ${arrow}</a>` : ''}</nav></header>
+  <main id="main">
+    <section class="hero" id="home"><div class="wrap hero-inner"><div class="hero-copy"><h1 class="logo">${logo}</h1><h2>Local Places.<br>Lasting Memories.</h2><div class="ornament" aria-hidden="true"><span></span>&#9733;<span></span></div><p>Original designs inspired by Williamsport, Warren County, and the places that make this area special.</p><a class="button" href="#collections">Explore the collections ${arrow}</a></div></div></section>
+    <section class="values" aria-label="Our values"><div class="wrap values-grid"><div><i data-lucide="map-pin" aria-hidden="true"></i><p><strong>Local designs</strong><span>Inspired by<br>Warren County</span></p></div><div><i data-lucide="palette" aria-hidden="true"></i><p><strong>Original artwork</strong><span>Local places.<br>Lasting memories.</span></p></div><div><i data-lucide="mountain" aria-hidden="true"></i><p><strong>Small-town roots</strong><span>Landmarks, history,<br>and hometown pride</span></p></div><div><i data-lucide="tree-pine" aria-hidden="true"></i><p><strong>A little piece of Warren County</strong><span>Wear the places<br>you love</span></p></div></div></section>
+    <section class="collections wrap" id="collections" aria-labelledby="collections-title"><h2 class="section-title" id="collections-title"><span>Featured Collections</span></h2><div class="collection-grid">${collections.map(c => `<article class="collection" id="${c.id}"><div class="collection-art ${c.className}"><img src="${image('approved-vintage-mockup.png')}" alt="${c.caption}" width="1024" height="1536" loading="lazy"></div><h3>${c.title}</h3><p>${c.description}</p>${storeUrl ? `<a class="button" href="${storeUrl}">View collection ${arrow}</a>` : ''}</article>`).join('')}</div></section>
+    <section class="about" id="about"><div class="wrap about-layout"><div class="about-copy"><h2>More Than a Place.<br>It's Home.</h2><div class="ornament" aria-hidden="true"><span></span>&#9733;<span></span></div><p>Williamsport Originals features original artwork inspired by the landmarks, history, and natural beauty of Warren County, Indiana. From Williamsport Falls to the Wabash River and our historic courthouse, each design celebrates the places that make this area unique.</p><a class="button gold" href="#warren-county">Our local landmarks ${arrow}</a></div><div class="story-art"><img src="${image('approved-vintage-mockup.png')}" alt="Vintage postcards of Williamsport Falls, the Wabash bridge, and the actual Warren County Courthouse with its red dome" width="1024" height="1536" loading="lazy"></div></div></section>
+    <section class="landmarks wrap" id="warren-county" aria-labelledby="landmarks-title"><h2 class="section-title" id="landmarks-title"><span>Rooted in Warren County</span></h2><p class="landmarks-intro">Three local landmarks. One place to call home.</p><div class="landmark-grid"><div><span>01</span><h3>Williamsport Falls</h3><p>The sandstone ledge, the wooded gorge, and the waterfall at the heart of Williamsport.</p></div><div><span>02</span><h3>Banks of the Wabash</h3><p>The river and bridges that connect our towns, our history, and generations of memories.</p></div><div><span>03</span><h3>Warren County Courthouse</h3><p>The familiar limestone facade and red-domed cupola of our courthouse in Williamsport.</p></div></div></section>
+  </main>
+  <footer><div class="wrap footer-grid"><a class="logo footer-logo" href="#home" aria-label="Williamsport Originals home">${logo}</a><div><h2>Collections</h2><a href="#falls">Williamsport Falls</a><a href="#wabash">Banks of the Wabash</a><a href="#courthouse">Warren County Courthouse</a>${storeUrl ? `<a href="${storeUrl}">Shop all products</a>` : ''}</div><div><h2>About</h2><a href="#about">Our story</a><a href="#warren-county">Warren County</a><a href="#collections">Original designs</a></div><div class="footer-note"><h2>A Little Piece of Home</h2><p>Local places. Lasting memories.<br>Williamsport, Indiana.</p></div></div><div class="wrap footer-bottom"><small>&copy; ${new Date().getFullYear()} Williamsport Originals. All rights reserved.</small><span>Williamsport, Indiana</span><a href="#home" aria-label="Back to top" title="Back to top"><i data-lucide="arrow-up" aria-hidden="true"></i></a></div></footer>`;
+const icons = { ArrowRight, ArrowUp, MapPin, Mountain, TreePine, Palette, Menu, X };
+createIcons({ icons });
+const toggle = document.querySelector('.menu-toggle');
+const navigation = document.querySelector('#navigation');
+function setMenu(open) {
+  toggle.setAttribute('aria-expanded', String(open));
+  toggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+  toggle.title = open ? 'Close navigation' : 'Open navigation';
+  toggle.innerHTML = `<i data-lucide="${open ? 'x' : 'menu'}" aria-hidden="true"></i>`;
+  navigation.classList.toggle('is-open', open);
+  createIcons({ icons });
 }
-function renderCart() {
- document.querySelector('#count').textContent = cart.reduce((n,i)=>n+i.quantity,0);
- document.querySelector('#subtotal').textContent = money(total(cart));
- document.querySelector('#cart-items').innerHTML = cart.length ? cart.map((i,index)=> { const p=products.find(p=>p.id===i.id); return `<article class="cart-item"><div>${art(p)}</div><section><h3>${p.name}</h3><p>${p.color} · ${i.size}</p><strong>${money(p.price*i.quantity)}</strong><div class="quantity"><button data-minus="${index}" aria-label="Decrease ${p.name} quantity">−</button><span>${i.quantity}</span><button data-plus="${index}" aria-label="Increase ${p.name} quantity" ${i.quantity>=99?'disabled':''}>+</button><button data-remove="${index}" class="remove">Remove</button></div></section></article>`; }).join('') : '<p class="empty">Your bag is waiting for a new favorite.<br><a href="#shop" id="browse">Explore the collection ↗</a></p>';
- try { localStorage.setItem('warren-cart',JSON.stringify(cart)); } catch {}
-}
-let toastTimer;
-document.addEventListener('click', e=> {
- const b=e.target.closest('button');
- if(b?.dataset.filter) { filter=b.dataset.filter; document.querySelectorAll('[data-filter]').forEach(x=>x.setAttribute('aria-pressed',String(x===b))); renderProducts(); }
- if(b?.dataset.add) { const id=b.dataset.add,size=document.querySelector(`#size-${id}`).value, item=cart.find(i=>i.id===id&&i.size===size); if(item) item.quantity=Math.min(99,item.quantity+1); else cart.push({id,size,quantity:1}); renderCart(); document.querySelector('#toast').textContent='Added to your bag'; clearTimeout(toastTimer); toastTimer=setTimeout(()=>document.querySelector('#toast').textContent='',2500); }
- for(const action of ['minus','plus','remove']) if(b?.dataset[action]!==undefined) { const index=Number(b.dataset[action]); if(action==='remove')cart.splice(index,1); else {cart[index].quantity+=action==='plus'?1:-1;if(cart[index].quantity===0)cart.splice(index,1);} renderCart(); }
- if(b?.id==='cart-open')document.querySelector('#bag').showModal();
- if(b?.id==='cart-close'||e.target.id==='browse')document.querySelector('#bag').close();
- if(b?.id==='checkout')document.querySelector('#checkout-note').hidden=false;
-});
-renderProducts(); renderCart();
+toggle.addEventListener('click', () => setMenu(toggle.getAttribute('aria-expanded') !== 'true'));
+navigation.addEventListener('click', event => { if (event.target.closest('a')) setMenu(false); });
+document.addEventListener('keydown', event => { if (event.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') { setMenu(false); toggle.focus(); } });
+matchMedia('(min-width: 761px)').addEventListener('change', () => setMenu(false));
